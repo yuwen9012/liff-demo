@@ -221,9 +221,39 @@ function doSubmitRep(){
   $('main').innerHTML=`<div class="done"><div class="big">🌱</div><h2>今天辛苦了</h2><p>11/3（二）業績回報已完成</p>
    <div class="sum" style="white-space:normal"><div class="r"><span>今日業績</span><b style="color:var(--gold)">NT$ ${fmt(repTotal())}</b></div>${lines}<hr>
    <div class="r"><span>聯絡客戶</span><span>${rep.contact} 位</span></div><div class="r"><span>接待客戶</span><span>${rep.recv} 位${note}</span></div></div>
-   <p style="font-size:13px">需要修改的話，21:00 前再點一次「業績回報」就可以囉。</p></div>`;
+   <p style="font-size:13px">需要修改的話，21:00 前再點一次「業績回報」就可以囉。</p><div class="hint" id="chat-note"></div></div>`;
   $('foot').innerHTML=`<div><button class="btn pri" onclick="closeForm()">關閉</button></div>`;
   scrollTo(0,0);
+  const rows=[flexRow('今日業績',`NT$ ${fmt(repTotal())}`,true),
+    ...CATS.filter(([k])=>rep[k]).map(([k,l])=>flexRow('　'+l,fmt(rep[k]))),
+    {type:'separator',margin:'md'},
+    flexRow('聯絡客戶',`${rep.contact} 位`),
+    flexRow('接待客戶',`${rep.recv} 位`+(rep.recv!==RECV_SYS?`（系統 ${RECV_SYS} 位）`:''))];
+  postToChat(`11/3（二）業績回報 NT$ ${fmt(repTotal())}`, flexCard('✅ 業績回報已完成','11/3（二）',rows));
+}
+
+/* ---------- 送出後傳一張回報卡到聊天室（liff.sendMessages，以使用者名義發送） ---------- */
+function flexRow(l,r,strong){
+  return {type:'box',layout:'horizontal',margin:'sm',contents:[
+    {type:'text',text:l,size:'sm',color:'#555555',flex:0},
+    {type:'text',text:r,size:strong?'md':'sm',align:'end',weight:strong?'bold':'regular',color:strong?'#b8892f':'#111111'}]};
+}
+function flexCard(title,sub,body){
+  return {type:'bubble',styles:{body:{backgroundColor:'#fbf6ee'}},body:{type:'box',layout:'vertical',contents:[
+    {type:'text',text:title,weight:'bold',size:'md',color:'#2f8f5b'},
+    {type:'text',text:sub,size:'sm',color:'#7a6c5d',wrap:true},
+    {type:'separator',margin:'md'},...body]}};
+}
+async function postToChat(altText,bubble){
+  const note=$('chat-note');
+  if(!inLine){note.textContent='（瀏覽器預覽：在 LINE 開啟時，會同時傳一張回報卡到聊天室）';return;}
+  if(!liff.isApiAvailable('sendMessages')){note.textContent='未傳送到聊天室：請從官方帳號的聊天室開啟表單。';return;}
+  try{
+    await liff.sendMessages([{type:'flex',altText,contents:bubble}]);
+    note.textContent='已傳送一張回報卡到聊天室。';
+  }catch(e){
+    note.textContent='未傳送到聊天室：請確認 LIFF 已勾選 chat_message.write 權限。（'+(e.message||e)+'）';
+  }
 }
 
 /* ---------- 客情反饋 ---------- */
@@ -249,7 +279,7 @@ function renderFb(){
   if(fb.step==='done'){
     const c=fb.cust;
     $('main').innerHTML=`<div class="done"><div class="big">🙏</div><h2>感謝您的回報</h2><p>${c.n}｜${day.l} ${day.d}・第 ${c.segs.length} 段</p>
-      <div class="sum">${esc(fb.lastText)}</div></div>`;
+      <div class="sum">${esc(fb.lastText)}</div><div class="hint" id="chat-note"></div></div>`;
     $('foot').innerHTML=`<div><button class="btn pri" onclick="fb.step='list';fb.text='';fb.q='';renderFb()">回報同日其他客戶</button><button class="btn sec2" onclick="closeForm()">關閉</button></div>`;
     scrollTo(0,0);
   }
@@ -276,6 +306,9 @@ function doSubmitFb(){
     $('main').insertAdjacentHTML('afterbegin','<div class="banner alert">前天的回報已超過期限，無法送出。</div>');return;}
   fb.cust.segs.push({t:new Date().toTimeString().slice(0,5),x:fb.text});
   fb.lastText=fb.text;fb.text='';fb.step='done';renderFb();
+  const c=fb.cust,d=DAYS[fb.day];
+  postToChat(`客情反饋｜${c.n} ${d.d}`, flexCard('📝 客情反饋已送出',`${c.n}（${c.m}）｜${d.l} ${d.d}・第 ${c.segs.length} 段`,
+    [{type:'text',text:fb.lastText,size:'sm',wrap:true,margin:'md',color:'#2b211a'}]));
 }
 
 /* ---------- 共用 ---------- */
