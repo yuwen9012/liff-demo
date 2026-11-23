@@ -191,7 +191,7 @@ function renderRep(){
     $('foot').innerHTML=`<div><button class="btn sec2" style="margin:0" onclick="closeForm()">關閉</button></div>`;return;
   }
   const head=prevRep?`<div class="banner info">今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）。再次送出會覆蓋。</div>`:'';
-  const rows=CATS.map(([k,l])=>`<div class="row"><label for="i-${k}">${l}</label><div class="in"><span class="u">NT$</span><input id="i-${k}" inputmode="numeric" placeholder="0" value="${rep[k]??''}" oninput="setRep('${k}',this.value)"></div></div>`).join('');
+  const rows=CATS.map(([k,l])=>`<div class="row"><label for="i-${k}">${l}</label><div class="in"><span class="u">NT$</span><input id="i-${k}" inputmode="numeric" placeholder="0" value="${Number.isFinite(rep[k])?fmt(rep[k]):''}" oninput="fmtInput(this);setRep('${k}',this.value)"></div></div>`).join('');
   const h=recvHint();
   $('main').innerHTML=`${hello()}<div class="topline"><b>11/3（二）業績回報</b><span>21:00 截止</span></div>${head}
   <div class="sec"><h3><span>業績金額</span><span>沒有的類別不用填</span></h3>${rows}</div>
@@ -205,6 +205,17 @@ function renderRep(){
 function renderRepFoot(){
   const ok=Number.isFinite(rep.contact)&&Number.isFinite(rep.recv)&&CATS.every(([k])=>!Number.isNaN(rep[k]));
   $('foot').innerHTML=`<div><div class="total"><span>業績合計</span><b>NT$ ${fmt(repTotal())}</b></div><button class="btn pri" ${ok?'':'disabled'} onclick="submitRep()">送出</button></div>`;
+}
+/* 金額即時加千分位：只留數字，重排逗號後把游標放回原本「第幾個數字」之後 */
+function fmtInput(el){
+  const pos=el.selectionStart??el.value.length;
+  const digitsBefore=el.value.slice(0,pos).replace(/\D/g,'').length;
+  const d=el.value.replace(/\D/g,'').replace(/^0+(?=\d)/,'');
+  const f=d.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value=f;
+  let i=0,c=0;
+  while(i<f.length&&c<digitsBefore){if(f[i]!==',')c++;i++;}
+  el.setSelectionRange(i,i);
 }
 function setRep(k,v){rep[k]=num(v);
   if(k==='recv'){const h=recvHint();$('recv-hint').className=h.cls;$('recv-hint').textContent=h.txt;}
