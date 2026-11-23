@@ -109,6 +109,7 @@ textarea{width:100%;min-height:180px;font:inherit;padding:10px 12px;border:1px s
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
+const PAGE_VER = '11/23 千分位＋聊天室回報卡';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
@@ -173,7 +174,7 @@ function demoPanel(){
   return `<details class="demo"><summary>情境模擬（展示用）</summary>
     <label><input type="checkbox" ${late?'checked':''} onchange="late=this.checked;go(form)"> 模擬 21:00 之後</label>
     <label><input type="checkbox" ${doneBefore?'checked':''} onchange="doneBefore=this.checked;if(!doneBefore)prevRep=null;go(form)"> 模擬今天已從系統回報過</label>
-    <div>資料皆為假資料，送出不會寫入任何系統。</div></details>`;
+    <div>資料皆為假資料，送出不會寫入任何系統。</div><div>版本：${PAGE_VER}</div></details>`;
 }
 
 /* ---------- 業績回報 ---------- */
