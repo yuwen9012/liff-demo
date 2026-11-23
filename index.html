@@ -109,7 +109,7 @@ textarea{width:100%;min-height:180px;font:inherit;padding:10px 12px;border:1px s
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
-const PAGE_VER = '11/23 千分位＋聊天室回報卡';   // 每次改版更新，用來確認手機拿到的是新版
+const PAGE_VER = '11/23 回報卡診斷版';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
@@ -259,12 +259,26 @@ function flexCard(title,sub,body){
 async function postToChat(altText,bubble){
   const note=$('chat-note');
   if(!inLine){note.textContent='（瀏覽器預覽：在 LINE 開啟時，會同時傳一張回報卡到聊天室）';return;}
-  if(!liff.isApiAvailable('sendMessages')){note.textContent='未傳送到聊天室：請從官方帳號的聊天室開啟表單。';return;}
+  note.textContent='正在傳送回報卡到聊天室…';
+  let where='未知';
   try{
-    await liff.sendMessages([{type:'flex',altText,contents:bubble}]);
+    where=(liff.getContext()||{}).type||'未知';           // utou＝與官方帳號的一對一聊天室
+    if(!liff.isApiAvailable('sendMessages')){
+      note.textContent=`未傳送到聊天室：請從官方帳號的聊天室開啟表單。（開啟位置：${where}）`;return;}
+    // 權限是後來才加的：先查有沒有「傳送訊息」權限，沒有就請使用者補按「許可」
+    let perm='';
+    try{perm=(await liff.permission.query('chat_message.write')).state;}catch(e){perm='查詢失敗';}
+    if(perm!=='granted'){
+      note.textContent=`尚未允許「傳送訊息」權限（${perm}），即將開啟授權畫面，按「許可」後請重新送出。`;
+      setTimeout(()=>{try{liff.permission.requestAll();}catch(e){note.textContent+=`（無法開啟授權畫面：${e.message||e}）`;}},1500);
+      return;
+    }
+    await Promise.race([
+      liff.sendMessages([{type:'flex',altText,contents:bubble}]),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('等候 10 秒沒有回應')),10000))]);
     note.textContent='已傳送一張回報卡到聊天室。';
   }catch(e){
-    note.textContent='未傳送到聊天室：請確認 LIFF 已勾選 chat_message.write 權限。（'+(e.message||e)+'）';
+    note.textContent=`未傳送到聊天室：${e.code?e.code+' ':''}${e.message||e}（開啟位置：${where}）`;
   }
 }
 
