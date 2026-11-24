@@ -14,90 +14,146 @@
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <style>
 :root{
-  --bg:#f6f4ef; --panel:#fffdf8; --ink:#2b211a; --sub:#7a6c5d; --line:#e4d7bd;
-  --gold:#b8892f; --gold-soft:#fbf3e2; --brown:#4a3e2e; --ok:#2f8f5b; --warn:#c0392b;
+  /* 取自聚寶盆原型 v1.3 淺色主題 */
+  --bg:#f6f4ef; --panel:#fffefa; --ink:#342e24; --sub:#817563; --line:#e8e1d4; --line-strong:#cfc0a5;
+  --primary:#544535; --primary-soft:#f3ecdf;
+  --gold:#c5a05a; --gold-dark:#947134; --gold-hi:#f1deb0; --banner-a:#f5e9cf; --banner-b:#fffdf7;
+  --title-g1:#c49a46; --title-g2:#ac8030; --title-g3:#886121; --seal:#d8453b;
+  --ok:#047857; --ok-soft:#ecfdf5; --warn:#c62828; --warn-soft:#fef2f2;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:700 16px/1.5 -apple-system,"Noto Sans TC","Microsoft JhengHei",sans-serif}
+input,textarea,button,select{font-weight:700}
 body{min-height:100vh;display:flex;flex-direction:column}
-main{flex:1;padding:14px 14px 24px;max-width:560px;width:100%;margin:0 auto}
-footer.bar{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 14px calc(12px + env(safe-area-inset-bottom))}
+main{flex:1;padding:0 16px 24px;max-width:560px;width:100%;margin:0 auto}
+footer.bar{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
 footer.bar:empty{display:none}
 footer.bar>div{max-width:560px;margin:0 auto}
 
-.hello{font-size:13px;color:var(--sub);margin-bottom:8px}
-.topline{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
-.topline b{font-size:18px}
-.topline span{font-size:13px;color:var(--warn)}
-.sec{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:12px}
-.sec h3{margin:0 0 6px;font-size:14px;color:var(--sub);font-weight:500;display:flex;justify-content:space-between}
-.row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed #efe6d4}
+.ic{width:18px;height:18px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px}
+.ic.lg{width:22px;height:22px;vertical-align:-5px}
+.ic.xl{width:44px;height:44px}
+
+/* 頁首：聚寶盆字樣＋財字印章 */
+.brand{display:flex;align-items:center;gap:6px;margin:0 -16px 14px;padding:10px 16px;background:linear-gradient(110deg,var(--banner-a),var(--banner-b));border-bottom:1px solid var(--line)}
+.brand .bt{font-size:19px;font-weight:900;letter-spacing:1px;background:linear-gradient(180deg,var(--title-g1),var(--title-g2) 55%,var(--title-g3));-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .seal{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:4px;background:var(--seal);color:#fff;font-size:12px;font-weight:900;transform:rotate(-6deg)}
+.brand .me{margin-left:auto;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:4px}
+.brand .me .ic{width:15px;height:15px}
+
+.topline{display:flex;justify-content:space-between;align-items:center;margin:0 2px 12px}
+.topline b{font-size:18px;display:flex;align-items:center;gap:6px}
+.topline span{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:4px}
+.topline span .ic{width:15px;height:15px}
+.sec{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:0 16px;margin-bottom:16px}
+.sec h3{margin:0;padding:10px 0 2px;font-size:13px;color:var(--sub);font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.sec h3 span:first-child{display:flex;align-items:center;gap:5px;color:var(--primary)}
+.sec h3 .ic{width:16px;height:16px;color:var(--gold-dark)}
+.row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line)}
 .row:last-child{border-bottom:0}
-.row label{flex:1;font-weight:700}
+.row label{flex:1}
 .row .in{display:flex;align-items:center;gap:6px}
-.row input{width:130px;text-align:right;font:inherit;font-size:17px;padding:8px 10px;border:1px solid #d6cbb8;border-radius:10px;background:#fff;color:var(--ink)}
-.row input:focus{outline:2px solid var(--gold);border-color:transparent}
+.row input{width:130px;text-align:right;font:inherit;font-size:17px;padding:4px 0;border:0;background:transparent;color:var(--ink)}
+.row input::placeholder{color:#cbbfae}
+.row input:focus{outline:none}
+.row:focus-within{border-bottom-color:var(--gold)}
 .row .u{color:var(--sub);font-size:14px;min-width:18px}
+.sec>.hint{padding:0 0 10px}
 .hint{font-size:13px;color:var(--sub)}
 .hint.warn{color:var(--warn)}
 .req{color:var(--warn)}
-.banner{border-radius:12px;padding:9px 12px;font-size:14px;margin-bottom:12px}
-.banner.info{background:var(--gold-soft);border:1px solid var(--line)}
-.banner.ok{background:#e8f6ee;border:1px solid #a9d9bd;color:#14532d}
+.banner{border-radius:8px;padding:10px 12px;font-size:14px;margin-bottom:12px}
+.banner.info{background:var(--primary-soft);color:var(--primary)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.banner.ok .ic{width:16px;height:16px;margin-right:4px}
 .banner.ok .hint{margin-top:2px}
-.banner.alert{background:#fdeeee;border:1px solid #e3a3a3;color:#8a1f1f}
-.total{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
-.total b{font-size:22px;color:var(--gold)}
-.btn{display:block;width:100%;border:0;border-radius:12px;padding:13px;font:inherit;font-weight:700;font-size:17px;cursor:pointer}
-.btn.pri{background:var(--brown);color:#fff}
+.banner.alert{background:var(--warn-soft);color:var(--warn)}
+.total{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px;color:var(--sub)}
+.total span{display:flex;align-items:center;gap:5px}
+.total b{font-size:21px;color:var(--gold-dark)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;border-radius:8px;padding:13px;font:inherit;font-size:16px;cursor:pointer}
+.btn.pri{background:var(--primary);color:#fff}
 .btn.pri:disabled{background:#cbbfae}
-.btn.sec2{background:#fff;color:var(--brown);border:1px solid #cfc0a5;margin-top:8px}
+.btn.sec2{background:var(--panel);color:var(--primary);border:1px solid var(--line-strong);margin-top:8px}
 
-.seg{display:flex;background:#ece5d6;border-radius:12px;padding:3px;margin-bottom:10px}
-.seg button{flex:1;border:0;background:none;padding:8px 0;border-radius:10px;font:inherit;color:var(--sub)}
-.seg button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1)}
-.seg button small{display:block;font-size:12px;line-height:1.1}
-.search{width:100%;font:inherit;padding:10px 12px;border:1px solid #d6cbb8;border-radius:10px;margin-bottom:8px;background:#fff;color:var(--ink)}
-.cust{display:flex;align-items:center;gap:10px;padding:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
-.cust:active{border-color:var(--gold)}
-.cust .n{font-weight:700}
+.seg{display:flex;background:var(--primary-soft);border-radius:8px;padding:2px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;padding:6px 0;border-radius:6px;font:inherit;font-size:15px;color:var(--sub)}
+.seg button.on{background:var(--panel);color:var(--primary);box-shadow:0 1px 2px rgba(84,69,53,.15)}
+.seg button small{display:block;font-size:11px;line-height:1.1;color:var(--sub)}
+.searchbox{display:flex;align-items:center;gap:6px;padding:0 12px;border-radius:8px;margin-bottom:8px;background:var(--primary-soft);color:var(--sub)}
+.searchbox .ic{width:16px;height:16px}
+.search{flex:1;font:inherit;padding:9px 0;border:0;background:transparent;color:var(--ink)}
+.search:focus{outline:none}
+#fb-list{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cust{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line)}
+.cust:last-child{border-bottom:0}
+.cust:active{background:var(--primary-soft)}
 .cust .m{font-size:13px;color:var(--sub)}
-.cust .tag{margin-left:auto;font-size:12px;padding:2px 8px;border-radius:99px;background:#e8f6ee;color:var(--ok);white-space:nowrap}
-.cust .tag.no{background:#f1ece2;color:var(--sub)}
-.cust .arr{color:#bbb}
-.who{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;font-size:14px}
-.who b{font-size:17px}
-.who a{float:right;color:var(--gold);font-size:14px}
-.back{display:inline-block;color:var(--gold);font-size:14px;margin-bottom:8px}
-.prev{font-size:14px;border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:6px 0;color:#4f4338}
+.cust .tag{margin-left:auto;font-size:13px;color:var(--ok);white-space:nowrap;display:flex;align-items:center;gap:3px}
+.cust .tag .ic{width:14px;height:14px}
+.cust .tag.no{color:var(--sub)}
+.cust .arr{color:var(--line-strong);font-size:20px}
+.who{padding:0 2px;margin-bottom:12px;font-size:14px;color:var(--sub)}
+.who b{font-size:18px;color:var(--ink)}
+.prevs{font-size:14px;color:var(--sub);margin:0 2px}
+.prevs summary{cursor:pointer;padding:4px 0}
+.prevs[open]{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 16px;margin:0}
+.back{display:inline-flex;align-items:center;color:var(--gold-dark);font-size:15px;margin:0 2px 8px}
+.prev{font-size:14px;padding:8px 0;border-bottom:1px solid var(--line);color:var(--ink)}
+.prev:last-child{border-bottom:0}
 .prev .s{color:var(--sub);font-size:12px}
-textarea{width:100%;min-height:180px;font:inherit;padding:10px 12px;border:1px solid #d6cbb8;border-radius:12px;resize:vertical;background:#fff;color:var(--ink)}
-.count{text-align:right;font-size:12px;color:var(--sub)}
+textarea{width:100%;min-height:200px;font:inherit;padding:10px 0;border:0;resize:vertical;background:transparent;color:var(--ink)}
+textarea::placeholder{color:#cbbfae}
+textarea:focus{outline:none}
+.count{text-align:right;font-size:12px;color:var(--sub);padding-bottom:8px}
+.count:empty{display:none}
 .count.over{color:var(--warn)}
 .empty{text-align:center;color:var(--sub);padding:30px 0;font-size:14px}
 
-.done{text-align:center;padding:24px 4px}
-.done .big{font-size:46px}
-.done h2{margin:6px 0 2px;font-size:21px}
+.done{padding:8px 2px;text-align:center}
+.done h2{margin:6px 0 2px;font-size:20px}
 .done p{margin:0;color:var(--sub);font-size:14px}
-.sum{background:#fbf6ee;border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:16px 0;text-align:left;font-size:15px;white-space:pre-wrap}
-.sum .r{display:flex;justify-content:space-between;padding:2px 0}
+.sum{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 16px;margin:16px 0;font-size:15px;white-space:pre-wrap;text-align:left}
+.sum .r{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}
+.sum .r:last-child{border-bottom:0}
+.sum .r b{color:var(--gold-dark)}
 .sum .r.ind{padding-left:12px;color:var(--sub)}
-.sum hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.sum hr{display:none}
 
-.mask{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:flex-end;z-index:20}
+.mask{position:fixed;inset:0;background:rgba(52,46,36,.4);display:none;align-items:flex-end;z-index:20}
 .mask.show{display:flex}
-.sheet{background:#fff;width:100%;border-radius:18px 18px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet{background:var(--panel);width:100%;border-radius:12px 12px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
 .sheet h4{margin:0 0 6px;font-size:17px}
-.sheet p{margin:0 0 12px;font-size:15px;color:#4f4338;white-space:pre-line}
+.sheet p{margin:0 0 12px;font-size:15px;color:var(--sub);white-space:pre-line}
 
 .menu .btn{margin-bottom:10px}
-.demo{margin:18px auto 0;max-width:560px;font-size:13px;color:var(--sub)}
+.demo{margin:20px auto 0;max-width:560px;font-size:13px;color:var(--sub)}
 .demo summary{cursor:pointer}
 .demo label{display:flex;gap:8px;align-items:center;margin:8px 0}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-coins" viewBox="0 0 24 24"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="m16.71 13.88.7.71-2.82 2.82"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-persona" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5"/></symbol>
+  <symbol id="i-coin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" style="fill:var(--gold);stroke:var(--gold-dark);stroke-width:1.5"/><circle cx="12" cy="12" r="6.6" style="fill:none;stroke:var(--gold-hi);stroke-width:1"/><rect x="9.6" y="9.6" width="4.8" height="4.8" style="fill:var(--banner-b);stroke:var(--gold-dark);stroke-width:1.2"/></symbol>
+  <symbol id="i-ingot" viewBox="0 0 24 24">
+    <path d="M2.5 9.5Q2 8 3.5 9Q6 11 8 10Q8 5 12 5Q16 5 16 10Q18 11 20.5 9Q22 8 21.5 10Q21 16 18 18Q15.5 20 12 20Q8.5 20 6 18Q3 16 2.5 9.5Z" style="fill:var(--gold);stroke:var(--gold-dark);stroke-width:1.3"/>
+    <ellipse cx="12" cy="9" rx="4" ry="3.5" style="fill:var(--gold-hi);stroke:var(--gold-dark);stroke-width:1.2"/>
+    <path d="M3 10Q6 16 12 15.5Q18 16 21 10" style="fill:none;stroke:var(--gold-dark);stroke-width:1.2"/>
+  </symbol>
+  <symbol id="i-hongbao" viewBox="0 0 24 24">
+    <rect x="5" y="2.5" width="14" height="19" rx="2.2" style="fill:#d8453b;stroke:#9e2a22;stroke-width:1.2"/>
+    <path d="M5.3 7.2Q12 12.4 18.7 7.2" style="fill:none;stroke:#9e2a22;stroke-width:1.2"/>
+    <circle cx="12" cy="10.2" r="2.7" style="fill:#e9b53c;stroke:#a87812;stroke-width:1"/>
+  </symbol>
+</svg>
 <main id="main"></main>
 <footer class="bar" id="foot"></footer>
 
@@ -111,7 +167,7 @@ textarea{width:100%;min-height:180px;font:inherit;padding:10px 12px;border:1px s
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
-const PAGE_VER = '11/24 客情反饋省步驟版';   // 每次改版更新，用來確認手機拿到的是新版
+const PAGE_VER = '11/24 聚寶盆風格';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
@@ -164,11 +220,12 @@ function closeForm(){
   if(inLine){liff.closeWindow();return;}
   go('');                                      // 不在 LINE 裡時回到首頁
 }
-function hello(){return `<div class="hello">${esc(me)} 您好${inLine?'':'（瀏覽器預覽）'}</div>`}
+const ic=(id,c='')=>`<svg class="ic ${c}"><use href="#i-${id}"/></svg>`;
+function hello(){return `<div class="brand"><span class="bt">聚寶盆</span><span class="seal">財</span><span class="me">${ic('persona')}${esc(me)}${inLine?'':'（預覽）'}</span></div>`}
 
 function renderMenu(){
   $('main').innerHTML=`${hello()}<h2 style="margin:4px 0 14px">回報表單（模擬）</h2>
-   <div class="menu"><button class="btn pri" onclick="go('rep')">業績回報</button><button class="btn sec2" onclick="go('fb')">客情反饋</button></div>
+   <div class="menu"><button class="btn pri" onclick="go('rep')">${ic('hongbao','lg')}業績回報</button><button class="btn sec2" onclick="go('fb')">${ic('msg')}客情反饋</button></div>
    ${demoPanel()}`;
   $('foot').innerHTML='';
 }
@@ -190,15 +247,15 @@ function recvHint(){const d=Number.isFinite(rep.recv)&&Math.abs(rep.recv-RECV_SY
   return {cls:'hint'+(d?' warn':''),txt:`系統算出 ${RECV_SYS} 位，可修改`+(d?'；與系統差 2 位以上，送出前會再確認':'')};}
 function renderRep(){
   if(late){
-    $('main').innerHTML=`${hello()}<div class="done"><div class="big">🔒</div><h2>今天的回報已於 21:00 截止</h2><p>${prevRep?`今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）`:'今天沒有送出回報，記為「未回報」'}</p></div>${demoPanel()}`;
+    $('main').innerHTML=`${hello()}<div class="done"><h2>今天的回報已於 21:00 截止</h2><p>${prevRep?`今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）`:'今天沒有送出回報，記為「未回報」'}</p></div>${demoPanel()}`;
     $('foot').innerHTML=`<div><button class="btn sec2" style="margin:0" onclick="closeForm()">關閉</button></div>`;return;
   }
   const head=prevRep?`<div class="banner info">今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）。再次送出會覆蓋。</div>`:'';
   const rows=CATS.map(([k,l])=>`<div class="row"><label for="i-${k}">${l}</label><div class="in"><span class="u">NT$</span><input id="i-${k}" inputmode="numeric" placeholder="0" value="${Number.isFinite(rep[k])?fmt(rep[k]):''}" oninput="fmtInput(this);setRep('${k}',this.value)"></div></div>`).join('');
   const h=recvHint();
-  $('main').innerHTML=`${hello()}<div class="topline"><b>11/3（二）業績回報</b><span>21:00 截止</span></div>${head}
-  <div class="sec"><h3><span>業績金額</span><span>沒有的類別不用填</span></h3>${rows}</div>
-  <div class="sec"><h3><span>客戶數</span></h3>
+  $('main').innerHTML=`${hello()}<div class="topline"><b>${ic('hongbao','lg')}11/3（二）業績回報</b><span>${ic('clock')}21:00 截止</span></div>${head}
+  <div class="sec"><h3><span>${ic('coins')}業績金額</span><span>沒有的類別不用填</span></h3>${rows}</div>
+  <div class="sec"><h3><span>${ic('users')}客戶數</span></h3>
     <div class="row"><label for="i-contact">聯絡客戶 <span class="req">*</span></label><div class="in"><input id="i-contact" inputmode="numeric" placeholder="必填" value="${rep.contact??''}" oninput="setRep('contact',this.value)"><span class="u">位</span></div></div>
     <div class="row"><label for="i-recv">接待客戶 <span class="req">*</span></label><div class="in"><input id="i-recv" inputmode="numeric" value="${rep.recv??''}" oninput="setRep('recv',this.value)"><span class="u">位</span></div></div>
     <div class="${h.cls}" id="recv-hint">${h.txt}</div>
@@ -207,7 +264,7 @@ function renderRep(){
 }
 function renderRepFoot(){
   const ok=Number.isFinite(rep.contact)&&Number.isFinite(rep.recv)&&CATS.every(([k])=>!Number.isNaN(rep[k]));
-  $('foot').innerHTML=`<div><div class="total"><span>業績合計</span><b>NT$ ${fmt(repTotal())}</b></div><button class="btn pri" ${ok?'':'disabled'} onclick="submitRep()">送出</button></div>`;
+  $('foot').innerHTML=`<div><div class="total"><span>${ic('coin')}業績合計</span><b>NT$ ${fmt(repTotal())}</b></div><button class="btn pri" ${ok?'':'disabled'} onclick="submitRep()">送出</button></div>`;
 }
 /* 金額即時加千分位：只留數字，重排逗號後把游標放回原本「第幾個數字」之後 */
 function fmtInput(el){
@@ -232,10 +289,10 @@ function doSubmitRep(){
   prevRep={vals:{...rep},at:new Date().toTimeString().slice(0,5),src:'LINE'};
   const lines=CATS.filter(([k])=>rep[k]).map(([k,l])=>`<div class="r ind"><span>${l}</span><span>${fmt(rep[k])}</span></div>`).join('');
   const note=rep.recv!==RECV_SYS?` <span style="font-size:12px;color:var(--sub)">（系統 ${RECV_SYS} 位）</span>`:'';
-  $('main').innerHTML=`<div class="done"><div class="big">🌱</div><h2>今天辛苦了</h2><p>11/3（二）業績回報已完成</p>
-   <div class="sum" style="white-space:normal"><div class="r"><span>今日業績</span><b style="color:var(--gold)">NT$ ${fmt(repTotal())}</b></div>${lines}<hr>
+  $('main').innerHTML=`<div class="done">${ic('ingot','xl')}<h2>業績回報已送出</h2><p>11/3（二）${prevRep.at}</p>
+   <div class="sum" style="white-space:normal"><div class="r"><span>今日業績</span><b>NT$ ${fmt(repTotal())}</b></div>${lines}<hr>
    <div class="r"><span>聯絡客戶</span><span>${rep.contact} 位</span></div><div class="r"><span>接待客戶</span><span>${rep.recv} 位${note}</span></div></div>
-   <p style="font-size:13px">需要修改的話，21:00 前再點一次「業績回報」就可以囉。</p><div class="hint" id="chat-note"></div></div>`;
+   <p style="font-size:13px">21:00 前可再次開啟「業績回報」修改。</p><div class="hint" id="chat-note"></div></div>`;
   $('foot').innerHTML=`<div><button class="btn pri" onclick="closeForm()">關閉</button></div>`;
   scrollTo(0,0);
   const rows=[flexRow('今日業績',`NT$ ${fmt(repTotal())}`,true),
@@ -243,18 +300,18 @@ function doSubmitRep(){
     {type:'separator',margin:'md'},
     flexRow('聯絡客戶',`${rep.contact} 位`),
     flexRow('接待客戶',`${rep.recv} 位`+(rep.recv!==RECV_SYS?`（系統 ${RECV_SYS} 位）`:''))];
-  postToChat(`11/3（二）業績回報 NT$ ${fmt(repTotal())}`, flexCard('✅ 業績回報已完成','11/3（二）',rows));
+  postToChat(`11/3（二）業績回報 NT$ ${fmt(repTotal())}`, flexCard('業績回報已送出','11/3（二）',rows));
 }
 
 /* ---------- 送出後傳一張回報卡到聊天室（liff.sendMessages，以使用者名義發送） ---------- */
 function flexRow(l,r,strong){
   return {type:'box',layout:'horizontal',margin:'sm',contents:[
     {type:'text',text:l,size:'sm',color:'#555555',flex:0},
-    {type:'text',text:r,size:strong?'md':'sm',align:'end',weight:strong?'bold':'regular',color:strong?'#b8892f':'#111111'}]};
+    {type:'text',text:r,size:strong?'md':'sm',align:'end',weight:strong?'bold':'regular',color:'#1c1c1e'}]};
 }
 function flexCard(title,sub,body){
-  return {type:'bubble',styles:{body:{backgroundColor:'#fbf6ee'}},body:{type:'box',layout:'vertical',contents:[
-    {type:'text',text:title,weight:'bold',size:'md',color:'#2f8f5b'},
+  return {type:'bubble',styles:{body:{backgroundColor:'#ffffff'}},body:{type:'box',layout:'vertical',contents:[
+    {type:'text',text:title,weight:'bold',size:'md',color:'#1c1c1e'},
     {type:'text',text:sub,size:'sm',color:'#7a6c5d',wrap:true},
     {type:'separator',margin:'md'},...body]}};
 }
@@ -288,26 +345,26 @@ async function postToChat(altText,bubble){
 function renderFb(){
   const day=DAYS[fb.day];
   if(fb.step==='list'){
-    const toast=fb.toast?`<div class="banner ok">✅ ${esc(fb.toast)}<div class="hint" id="chat-note"></div></div>`:'';
+    const toast=fb.toast?`<div class="banner ok">${ic('check')}${esc(fb.toast)}<div class="hint" id="chat-note"></div></div>`:'';
     $('main').innerHTML=`${hello()}${toast}<div class="seg">${DAYS.map(d=>`<button class="${d.k===fb.day?'on':''}" onclick="fb.day=${d.k};fb.q='';renderFb()">${d.l}<small>${d.d}</small></button>`).join('')}</div>
-      <input class="search" type="search" placeholder="搜尋姓名或病歷號" value="${esc(fb.q)}" oninput="fb.q=this.value;renderFbList()">
+      <div class="searchbox">${ic('search')}<input class="search" type="search" placeholder="搜尋姓名或病歷號" value="${esc(fb.q)}" oninput="fb.q=this.value;renderFbList()"></div>
       <div class="hint" style="margin:0 0 8px">我負責的客戶・${day.d} 有到店</div>
       <div id="fb-list"></div>${demoPanel()}`;
     renderFbList();$('foot').innerHTML='';return;
   }
   if(fb.step==='write'){
     const c=fb.cust,n=c.segs.length+1;
-    const prev=c.segs.length?`<div class="sec"><h3><span>已回報 ${c.segs.length} 段</span></h3>${c.segs.map((s,i)=>`<div class="prev"><div class="s">第 ${i+1} 段・${s.t}</div>${esc(s.x)}</div>`).join('')}</div>`:'';
-    $('main').innerHTML=`<a class="back" onclick="fb.step='list';renderFb()">‹ 客戶清單</a>
-      <div class="who"><a onclick="fb.step='list';renderFb()">換客戶</a><b>${c.n}</b>　${c.m}<br>${day.l} ${day.d}・${c.c}</div>${prev}
-      <div class="sec"><h3><span>${c.segs.length?`補充第 ${n} 段`:'回報內容'}</span></h3>
-      <textarea id="fb-text" placeholder="例如：客戶反應、想了解的方案、家屬意見…" oninput="fb.text=this.value;fbCount()">${esc(fb.text)}</textarea>
-      <div class="count" id="fb-count"></div></div>`;
+    // 精簡：姓名＋一行日期課程；先前段落預設收合；輸入框不加標題
+    const prev=c.segs.length?`<details class="prevs"><summary>已回報 ${c.segs.length} 段</summary>${c.segs.map((s,i)=>`<div class="prev"><div class="s">第 ${i+1} 段・${s.t}</div>${esc(s.x)}</div>`).join('')}</details>`:'';
+    $('main').innerHTML=`<a class="back" onclick="fb.step='list';renderFb()">${ic('left')}客戶清單</a>
+      <div class="who"><b>${c.n}</b><div>${day.d}・${c.c}</div></div>
+      <div class="sec"><textarea id="fb-text" placeholder="${c.segs.length?`輸入第 ${n} 段內容`:'輸入回報內容'}" oninput="fb.text=this.value;fbCount()">${esc(fb.text)}</textarea>
+      <div class="count" id="fb-count"></div></div>${prev}`;
     fbCount();return;
   }
   if(fb.step==='done'){
     const c=fb.cust;
-    $('main').innerHTML=`<div class="done"><div class="big">🙏</div><h2>感謝您的回報</h2><p>${c.n}｜${day.l} ${day.d}・第 ${c.segs.length} 段</p>
+    $('main').innerHTML=`<div class="done"><h2>客情反饋已送出</h2><p>${c.n}｜${day.l} ${day.d}・第 ${c.segs.length} 段</p>
       <div class="sum">${esc(fb.lastText)}</div><div class="hint" id="chat-note"></div></div>`;
     $('foot').innerHTML=`<div><button class="btn pri" onclick="fb.step='list';fb.text='';fb.q='';renderFb()">回報同日其他客戶</button><button class="btn sec2" onclick="closeForm()">關閉</button></div>`;
     scrollTo(0,0);
@@ -316,13 +373,13 @@ function renderFb(){
 function renderFbList(){
   const q=fb.q.trim(), all=CUSTS[fb.day];
   const list=all.filter(c=>!q||c.n.includes(q)||c.m.includes(q));
-  $('fb-list').innerHTML=list.length?list.map(c=>`<div class="cust" onclick="pickCust(${all.indexOf(c)})"><div><div class="n">${c.n}</div><div class="m">${c.m}・${c.c}</div></div><span class="tag ${c.segs.length?'':'no'}">${c.segs.length?`已回報 ${c.segs.length} 段`:'未回報'}</span><span class="arr">›</span></div>`).join('')
+  $('fb-list').innerHTML=list.length?list.map(c=>`<div class="cust" onclick="pickCust(${all.indexOf(c)})"><div><div class="n">${c.n}</div><div class="m">${c.m}・${c.c}</div></div><span class="tag ${c.segs.length?'':'no'}">${c.segs.length?`${ic('check')}已回報 ${c.segs.length} 段`:'未回報'}</span><span class="arr">›</span></div>`).join('')
     :`<div class="empty">${q?'找不到符合的客戶':'這一天沒有您負責的到店客戶'}</div>`;
 }
 function pickCust(i){fb.cust=CUSTS[fb.day][i];fb.toast='';fb.step='write';renderFb();scrollTo(0,0);}
 function fbCount(){
   const len=fb.text.length,over=len>500,ok=fb.text.trim()&&!over;
-  const c=$('fb-count');c.textContent=`${len} / 500`;c.className='count'+(over?' over':'');
+  const c=$('fb-count');c.textContent=len>=450?`${len} / 500`:'';c.className='count'+(over?' over':'');
   // 省步驟：不跳確認框，按鈕直接寫出客戶姓名，避免送錯人
   $('foot').innerHTML=`<div><button class="btn pri" ${ok?'':'disabled'} onclick="doSubmitFb()">送出（${esc(fb.cust.n)}）</button></div>`;
 }
@@ -337,8 +394,8 @@ function doSubmitFb(){
   fb.cust.segs.push({t:new Date().toTimeString().slice(0,5),x:fb.text});
   const c=fb.cust,d=DAYS[fb.day];
   // 省步驟：送出後直接回到客戶清單，頂部提示已送出
-  fb.lastText=fb.text;fb.text='';fb.q='';fb.toast=`已送出 ${c.n}・第 ${c.segs.length} 段`;fb.step='list';renderFb();scrollTo(0,0);
-  postToChat(`客情反饋｜${c.n} ${d.d}`, flexCard('📝 客情反饋已送出',`${c.n}（${c.m}）｜${d.l} ${d.d}・第 ${c.segs.length} 段`,
+  fb.lastText=fb.text;fb.text='';fb.q='';fb.toast=`已送出：${c.n}（第 ${c.segs.length} 段）`;fb.step='list';renderFb();scrollTo(0,0);
+  postToChat(`客情反饋｜${c.n} ${d.d}`, flexCard('客情反饋已送出',`${c.n}（${c.m}）｜${d.l} ${d.d}・第 ${c.segs.length} 段`,
     [{type:'text',text:fb.lastText,size:'sm',wrap:true,margin:'md',color:'#2b211a'}]));
 }
 
