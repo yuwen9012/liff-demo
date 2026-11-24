@@ -167,7 +167,7 @@ textarea:focus{outline:none}
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
-const PAGE_VER = '11/24 聚寶盆風格';   // 每次改版更新，用來確認手機拿到的是新版
+const PAGE_VER = '11/24 聚寶盆風格＋回報卡修正';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
@@ -322,7 +322,8 @@ async function postToChat(altText,bubble){
   let where='未知';
   try{
     where=(liff.getContext()||{}).type||'未知';           // utou＝與官方帳號的一對一聊天室
-    if(!liff.isApiAvailable('sendMessages')){
+    // isApiAvailable 不接受 'sendMessages'（會丟 INVALID_ARGUMENT），改以開啟位置判斷：只有從聊天室開啟才能傳訊息
+    if(!['utou','room','group','square_chat'].includes(where)){
       note.textContent=`未傳送到聊天室：請從官方帳號的聊天室開啟表單。（開啟位置：${where}）`;return;}
     // 權限是後來才加的：先查有沒有「傳送訊息」權限，沒有就請使用者補按「許可」
     let perm='';
