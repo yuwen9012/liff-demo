@@ -43,6 +43,8 @@ footer.bar>div{max-width:560px;margin:0 auto}
 .req{color:var(--warn)}
 .banner{border-radius:12px;padding:9px 12px;font-size:14px;margin-bottom:12px}
 .banner.info{background:var(--gold-soft);border:1px solid var(--line)}
+.banner.ok{background:#e8f6ee;border:1px solid #a9d9bd;color:#14532d}
+.banner.ok .hint{margin-top:2px}
 .banner.alert{background:#fdeeee;border:1px solid #e3a3a3;color:#8a1f1f}
 .total{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
 .total b{font-size:22px;color:var(--gold)}
@@ -109,7 +111,7 @@ textarea{width:100%;min-height:180px;font:inherit;padding:10px 12px;border:1px s
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
-const PAGE_VER = '11/23 回報卡診斷版';   // 每次改版更新，用來確認手機拿到的是新版
+const PAGE_VER = '11/24 客情反饋省步驟版';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
@@ -286,7 +288,8 @@ async function postToChat(altText,bubble){
 function renderFb(){
   const day=DAYS[fb.day];
   if(fb.step==='list'){
-    $('main').innerHTML=`${hello()}<div class="seg">${DAYS.map(d=>`<button class="${d.k===fb.day?'on':''}" onclick="fb.day=${d.k};fb.q='';renderFb()">${d.l}<small>${d.d}</small></button>`).join('')}</div>
+    const toast=fb.toast?`<div class="banner ok">✅ ${esc(fb.toast)}<div class="hint" id="chat-note"></div></div>`:'';
+    $('main').innerHTML=`${hello()}${toast}<div class="seg">${DAYS.map(d=>`<button class="${d.k===fb.day?'on':''}" onclick="fb.day=${d.k};fb.q='';renderFb()">${d.l}<small>${d.d}</small></button>`).join('')}</div>
       <input class="search" type="search" placeholder="搜尋姓名或病歷號" value="${esc(fb.q)}" oninput="fb.q=this.value;renderFbList()">
       <div class="hint" style="margin:0 0 8px">我負責的客戶・${day.d} 有到店</div>
       <div id="fb-list"></div>${demoPanel()}`;
@@ -316,11 +319,12 @@ function renderFbList(){
   $('fb-list').innerHTML=list.length?list.map(c=>`<div class="cust" onclick="pickCust(${all.indexOf(c)})"><div><div class="n">${c.n}</div><div class="m">${c.m}・${c.c}</div></div><span class="tag ${c.segs.length?'':'no'}">${c.segs.length?`已回報 ${c.segs.length} 段`:'未回報'}</span><span class="arr">›</span></div>`).join('')
     :`<div class="empty">${q?'找不到符合的客戶':'這一天沒有您負責的到店客戶'}</div>`;
 }
-function pickCust(i){fb.cust=CUSTS[fb.day][i];fb.step='write';renderFb();scrollTo(0,0);}
+function pickCust(i){fb.cust=CUSTS[fb.day][i];fb.toast='';fb.step='write';renderFb();scrollTo(0,0);}
 function fbCount(){
   const len=fb.text.length,over=len>500,ok=fb.text.trim()&&!over;
   const c=$('fb-count');c.textContent=`${len} / 500`;c.className='count'+(over?' over':'');
-  $('foot').innerHTML=`<div><button class="btn pri" ${ok?'':'disabled'} onclick="confirmFb()">送出</button></div>`;
+  // 省步驟：不跳確認框，按鈕直接寫出客戶姓名，避免送錯人
+  $('foot').innerHTML=`<div><button class="btn pri" ${ok?'':'disabled'} onclick="doSubmitFb()">送出（${esc(fb.cust.n)}）</button></div>`;
 }
 function confirmFb(){
   const c=fb.cust,d=DAYS[fb.day];
@@ -331,8 +335,9 @@ function doSubmitFb(){
   if(late&&fb.day===2){fb.step='list';renderFb();
     $('main').insertAdjacentHTML('afterbegin','<div class="banner alert">前天的回報已超過期限，無法送出。</div>');return;}
   fb.cust.segs.push({t:new Date().toTimeString().slice(0,5),x:fb.text});
-  fb.lastText=fb.text;fb.text='';fb.step='done';renderFb();
   const c=fb.cust,d=DAYS[fb.day];
+  // 省步驟：送出後直接回到客戶清單，頂部提示已送出
+  fb.lastText=fb.text;fb.text='';fb.q='';fb.toast=`已送出 ${c.n}・第 ${c.segs.length} 段`;fb.step='list';renderFb();scrollTo(0,0);
   postToChat(`客情反饋｜${c.n} ${d.d}`, flexCard('📝 客情反饋已送出',`${c.n}（${c.m}）｜${d.l} ${d.d}・第 ${c.segs.length} 段`,
     [{type:'text',text:fb.lastText,size:'sm',wrap:true,margin:'md',color:'#2b211a'}]));
 }
