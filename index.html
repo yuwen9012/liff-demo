@@ -167,7 +167,7 @@ textarea:focus{outline:none}
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
-const PAGE_VER = '11/24 聚寶盆風格＋回報卡修正';   // 每次改版更新，用來確認手機拿到的是新版
+const PAGE_VER = '11/25 官方帳號回覆回報卡';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
@@ -295,27 +295,16 @@ function doSubmitRep(){
    <p style="font-size:13px">21:00 前可再次開啟「業績回報」修改。</p><div class="hint" id="chat-note"></div></div>`;
   $('foot').innerHTML=`<div><button class="btn pri" onclick="closeForm()">關閉</button></div>`;
   scrollTo(0,0);
-  const rows=[flexRow('今日業績',`NT$ ${fmt(repTotal())}`,true),
-    ...CATS.filter(([k])=>rep[k]).map(([k,l])=>flexRow('　'+l,fmt(rep[k]))),
-    {type:'separator',margin:'md'},
-    flexRow('聯絡客戶',`${rep.contact} 位`),
-    flexRow('接待客戶',`${rep.recv} 位`+(rep.recv!==RECV_SYS?`（系統 ${RECV_SYS} 位）`:''))];
-  postToChat(`11/3（二）業績回報 NT$ ${fmt(repTotal())}`, flexCard('業績回報已送出','11/3（二）',rows));
+  // 每行「項目 數值」，第一行以【回報】開頭；官方帳號的 webhook 收到後回覆回報卡
+  const msg=['【回報】11/3（二）業績回報',`今日業績 NT$${fmt(repTotal())}`,
+    ...CATS.filter(([k])=>rep[k]).map(([k,l])=>`${l} ${fmt(rep[k])}`),
+    `聯絡客戶 ${rep.contact} 位`,
+    `接待客戶 ${rep.recv} 位`+(rep.recv!==RECV_SYS?`（系統 ${RECV_SYS} 位）`:'')];
+  postToChat(msg.join('\n'));
 }
 
-/* ---------- 送出後傳一張回報卡到聊天室（liff.sendMessages，以使用者名義發送） ---------- */
-function flexRow(l,r,strong){
-  return {type:'box',layout:'horizontal',margin:'sm',contents:[
-    {type:'text',text:l,size:'sm',color:'#555555',flex:0},
-    {type:'text',text:r,size:strong?'md':'sm',align:'end',weight:strong?'bold':'regular',color:'#1c1c1e'}]};
-}
-function flexCard(title,sub,body){
-  return {type:'bubble',styles:{body:{backgroundColor:'#ffffff'}},body:{type:'box',layout:'vertical',contents:[
-    {type:'text',text:title,weight:'bold',size:'md',color:'#1c1c1e'},
-    {type:'text',text:sub,size:'sm',color:'#7a6c5d',wrap:true},
-    {type:'separator',margin:'md'},...body]}};
-}
-async function postToChat(altText,bubble){
+/* ---------- 送出後以使用者名義發一則「【回報】…」文字（liff.sendMessages），由官方帳號回覆回報卡 ---------- */
+async function postToChat(text){
   const note=$('chat-note');
   if(!inLine){note.textContent='（瀏覽器預覽：在 LINE 開啟時，會同時傳一張回報卡到聊天室）';return;}
   note.textContent='正在傳送回報卡到聊天室…';
@@ -334,9 +323,9 @@ async function postToChat(altText,bubble){
       return;
     }
     await Promise.race([
-      liff.sendMessages([{type:'flex',altText,contents:bubble}]),
+      liff.sendMessages([{type:'text',text}]),
       new Promise((_,rej)=>setTimeout(()=>rej(new Error('等候 10 秒沒有回應')),10000))]);
-    note.textContent='已傳送一張回報卡到聊天室。';
+    note.textContent='已送出，官方帳號會在聊天室回覆回報卡。';
   }catch(e){
     note.textContent=`未傳送到聊天室：${e.code?e.code+' ':''}${e.message||e}（開啟位置：${where}）`;
   }
@@ -396,8 +385,7 @@ function doSubmitFb(){
   const c=fb.cust,d=DAYS[fb.day];
   // 省步驟：送出後直接回到客戶清單，頂部提示已送出
   fb.lastText=fb.text;fb.text='';fb.q='';fb.toast=`已送出：${c.n}（第 ${c.segs.length} 段）`;fb.step='list';renderFb();scrollTo(0,0);
-  postToChat(`客情反饋｜${c.n} ${d.d}`, flexCard('客情反饋已送出',`${c.n}（${c.m}）｜${d.l} ${d.d}・第 ${c.segs.length} 段`,
-    [{type:'text',text:fb.lastText,size:'sm',wrap:true,margin:'md',color:'#2b211a'}]));
+  postToChat(`【回報】客情反饋｜${c.n} ${d.d}第 ${c.segs.length} 段\n${fb.lastText}`);
 }
 
 /* ---------- 共用 ---------- */
