@@ -167,7 +167,7 @@ textarea:focus{outline:none}
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
-const PAGE_VER = '11/25 官方帳號回覆回報卡';   // 每次改版更新，用來確認手機拿到的是新版
+const PAGE_VER = '11/25 客情反饋彙整卡';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
@@ -213,7 +213,7 @@ async function boot(){
 function go(f){
   form=f;
   if(f==='rep'){initRep();}
-  else if(f==='fb'){fb={step:'list',day:0,q:'',cust:null,text:''};renderFb();}
+  else if(f==='fb'){fb={step:'list',day:0,q:'',cust:null,text:'',sent:[]};renderFb();}
   else renderMenu();
 }
 function closeForm(){
@@ -340,7 +340,10 @@ function renderFb(){
       <div class="searchbox">${ic('search')}<input class="search" type="search" placeholder="搜尋姓名或病歷號" value="${esc(fb.q)}" oninput="fb.q=this.value;renderFbList()"></div>
       <div class="hint" style="margin:0 0 8px">我負責的客戶・${day.d} 有到店</div>
       <div id="fb-list"></div>${demoPanel()}`;
-    renderFbList();$('foot').innerHTML='';return;
+    renderFbList();
+    // 本次開啟有回報過才出現「完成」：按下後發一張彙整卡
+    $('foot').innerHTML=fb.sent.length?`<div><button class="btn pri" onclick="finishFb()">${ic('check')}完成（已回報 ${fb.sent.length} 位）</button></div>`:'';
+    return;
   }
   if(fb.step==='write'){
     const c=fb.cust,n=c.segs.length+1;
@@ -353,10 +356,10 @@ function renderFb(){
     fbCount();return;
   }
   if(fb.step==='done'){
-    const c=fb.cust;
-    $('main').innerHTML=`<div class="done"><h2>客情反饋已送出</h2><p>${c.n}｜${day.l} ${day.d}・第 ${c.segs.length} 段</p>
-      <div class="sum">${esc(fb.lastText)}</div><div class="hint" id="chat-note"></div></div>`;
-    $('foot').innerHTML=`<div><button class="btn pri" onclick="fb.step='list';fb.text='';fb.q='';renderFb()">回報同日其他客戶</button><button class="btn sec2" onclick="closeForm()">關閉</button></div>`;
+    const rows=fb.sent.map(x=>`<div class="r"><span>${esc(x.n)}</span><span>${x.d}・第 ${x.seg} 段</span></div>`).join('');
+    $('main').innerHTML=`<div class="done">${ic('ingot','xl')}<h2>客情反饋已送出</h2><p>本次回報 ${fb.sent.length} 位客戶</p>
+      <div class="sum" style="white-space:normal">${rows}</div><div class="hint" id="chat-note"></div></div>`;
+    $('foot').innerHTML=`<div><button class="btn pri" onclick="closeForm()">關閉</button></div>`;
     scrollTo(0,0);
   }
 }
@@ -384,8 +387,13 @@ function doSubmitFb(){
   fb.cust.segs.push({t:new Date().toTimeString().slice(0,5),x:fb.text});
   const c=fb.cust,d=DAYS[fb.day];
   // 省步驟：送出後直接回到客戶清單，頂部提示已送出
-  fb.lastText=fb.text;fb.text='';fb.q='';fb.toast=`已送出：${c.n}（第 ${c.segs.length} 段）`;fb.step='list';renderFb();scrollTo(0,0);
-  postToChat(`【回報】客情反饋｜${c.n} ${d.d}第 ${c.segs.length} 段\n${fb.lastText}`);
+  // 每位客戶送出時不回卡片，記下來，按「完成」時一次發彙整卡
+  fb.sent.push({n:c.n,d:d.d,seg:c.segs.length});
+  fb.lastText=fb.text;fb.text='';fb.q='';fb.toast=`已送出：${c.n}（第 ${c.segs.length} 段）。全部回報完請按下方「完成」`;fb.step='list';renderFb();scrollTo(0,0);
+}
+function finishFb(){
+  fb.step='done';renderFb();
+  postToChat(['【回報】客情反饋彙整',`本次回報 ${fb.sent.length} 位客戶`,...fb.sent.map(x=>`${x.n}　${x.d}第 ${x.seg} 段`)].join('\n'));
 }
 
 /* ---------- 共用 ---------- */
