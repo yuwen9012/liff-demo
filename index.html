@@ -127,9 +127,6 @@ textarea:focus{outline:none}
 .sheet p{margin:0 0 12px;font-size:15px;color:var(--sub);white-space:pre-line}
 
 .menu .btn{margin-bottom:10px}
-.demo{margin:20px auto 0;max-width:560px;font-size:13px;color:var(--sub)}
-.demo summary{cursor:pointer}
-.demo label{display:flex;gap:8px;align-items:center;margin:8px 0}
 </style>
 </head>
 <body>
@@ -230,15 +227,8 @@ function hello(){return `<div class="brand"><span class="bt">聚寶盆</span><sp
 
 function renderMenu(){
   $('main').innerHTML=`${hello()}<h2 style="margin:4px 0 14px">回報表單（模擬）</h2>
-   <div class="menu"><button class="btn pri" onclick="go('rep')">${ic('hongbao','lg')}業績回報</button><button class="btn sec2" onclick="go('fb')">${ic('msg')}客情反饋</button></div>
-   ${demoPanel()}`;
+   <div class="menu"><button class="btn pri" onclick="go('rep')">${ic('hongbao','lg')}業績回報</button><button class="btn sec2" onclick="go('fb')">${ic('msg')}客情反饋</button></div>`;
   $('foot').innerHTML='';
-}
-function demoPanel(){
-  return `<details class="demo"><summary>情境模擬（展示用）</summary>
-    <label><input type="checkbox" ${late?'checked':''} onchange="late=this.checked;go(form)"> 模擬 21:00 之後</label>
-    <label><input type="checkbox" ${doneBefore?'checked':''} onchange="doneBefore=this.checked;if(!doneBefore)prevRep=null;go(form)"> 模擬今天已從系統回報過</label>
-    <div>資料皆為假資料，送出不會寫入任何系統。</div><div>版本：${PAGE_VER}</div></details>`;
 }
 
 /* ---------- 業績回報 ---------- */
@@ -252,7 +242,7 @@ function recvHint(){const d=Number.isFinite(rep.recv)&&Math.abs(rep.recv-RECV_SY
   return {cls:'hint'+(d?' warn':''),txt:`系統算出 ${RECV_SYS} 位，可修改`+(d?'；與系統差 2 位以上，送出前會再確認':'')};}
 function renderRep(){
   if(late){
-    $('main').innerHTML=`${hello()}<div class="done"><h2>今天的回報已於 21:00 截止</h2><p>${prevRep?`今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）`:'今天沒有送出回報，記為「未回報」'}</p></div>${demoPanel()}`;
+    $('main').innerHTML=`${hello()}<div class="done"><h2>今天的回報已於 21:00 截止</h2><p>${prevRep?`今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）`:'今天沒有送出回報，記為「未回報」'}</p></div>`;
     $('foot').innerHTML=`<div><button class="btn sec2" style="margin:0" onclick="closeForm()">關閉</button></div>`;return;
   }
   const head=prevRep?`<div class="banner info">今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）。再次送出會覆蓋。</div>`:'';
@@ -264,7 +254,7 @@ function renderRep(){
     <div class="row"><label for="i-contact">聯絡客戶 <span class="req">*</span></label><div class="in"><input id="i-contact" inputmode="numeric" placeholder="必填" value="${rep.contact??''}" oninput="setRep('contact',this.value)"><span class="u">位</span></div></div>
     <div class="row"><label for="i-recv">接待客戶 <span class="req">*</span></label><div class="in"><input id="i-recv" inputmode="numeric" value="${rep.recv??''}" oninput="setRep('recv',this.value)"><span class="u">位</span></div></div>
     <div class="${h.cls}" id="recv-hint">${h.txt}</div>
-  </div>${demoPanel()}`;
+  </div>`;
   renderRepFoot();
 }
 function renderRepFoot(){
@@ -344,7 +334,7 @@ function renderFb(){
     $('main').innerHTML=`${hello()}${toast}<div class="seg">${DAYS.map(d=>`<button class="${d.k===fb.day?'on':''}" onclick="fb.day=${d.k};fb.q='';renderFb()">${d.l}<small>${d.d}</small></button>`).join('')}</div>
       <div class="searchbox">${ic('search')}<input class="search" type="search" placeholder="搜尋姓名或病歷號" value="${esc(fb.q)}" oninput="fb.q=this.value;renderFbList()"></div>
       <div class="hint" style="margin:0 0 8px">我負責的客戶・${day.d} 有到店</div>
-      <div id="fb-list"></div>${demoPanel()}`;
+      <div id="fb-list"></div>`;
     renderFbList();
     // 本次開啟有回報過才出現「完成」：按下後發一張彙整卡
     $('foot').innerHTML=fb.sent.length?`<div><button class="btn pri" onclick="finishFb()">${ic('check')}完成（已回報 ${fb.sent.length} 位）</button></div>`:'';
