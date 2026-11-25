@@ -77,7 +77,7 @@ footer.bar>div{max-width:560px;margin:0 auto}
 .btn.sec2{background:var(--panel);color:var(--primary);border:1px solid var(--line-strong);margin-top:8px}
 
 .seg{display:flex;background:var(--primary-soft);border-radius:8px;padding:2px;margin-bottom:10px}
-.seg button{flex:1;border:0;background:none;padding:6px 0;border-radius:6px;font:inherit;font-size:15px;color:var(--sub)}
+.seg button{flex:1;min-width:0;border:0;background:none;padding:6px 0;border-radius:6px;font:inherit;font-size:14px;color:var(--sub);white-space:nowrap}
 .seg button.on{background:var(--panel);color:var(--primary);box-shadow:0 1px 2px rgba(84,69,53,.15)}
 .seg button small{display:block;font-size:11px;line-height:1.1;color:var(--sub)}
 .searchbox{display:flex;align-items:center;gap:6px;padding:0 12px;border-radius:8px;margin-bottom:8px;background:var(--primary-soft);color:var(--sub)}
@@ -167,11 +167,14 @@ textarea:focus{outline:none}
 /* ========== 設定：建好 LIFF 後把 LIFF ID 填在這裡 ========== */
 const LIFF_ID = '2012761142-3REcOMxJ';
 /* ======================================================= */
-const PAGE_VER = '11/25 客情反饋彙整卡';   // 每次改版更新，用來確認手機拿到的是新版
+const PAGE_VER = '11/25 客情反饋可選 5 天';   // 每次改版更新，用來確認手機拿到的是新版
 
 const CATS=[['rehab','復能'],['eecp','EECP'],['drip','營養點滴'],['exam','體檢商品'],['supp','保健食品']];
 const RECV_SYS=6;
-const DAYS=[{k:0,l:'今天',d:'11/3（二）'},{k:1,l:'昨天',d:'11/2（一）'},{k:2,l:'前天',d:'11/1（日）'}];
+// 客情反饋可回報今天往回共 5 天；日期依實際今天計算
+const DAY_LABELS=['今天','昨天','前天','3 天前','4 天前'];
+const DAYS=DAY_LABELS.map((l,k)=>{const t=new Date();t.setDate(t.getDate()-k);
+  return {k,l,d:`${t.getMonth()+1}/${t.getDate()}（${'日一二三四五六'[t.getDay()]}）`};});
 const CUSTS={
   0:[{n:'王志明',m:'00000231',c:'EECP、靜脈營養點滴',segs:[{t:'10:12',x:'今天做完 EECP 後說胸悶改善很多，想了解下一期的方案。'},{t:'14:40',x:'下午點滴時太太陪同，詢問保健食品的價格。'}]},
       {n:'李美華',m:'00000877',c:'ILIB',segs:[]},
@@ -179,7 +182,9 @@ const CUSTS={
       {n:'鄭雅雯',m:'00002088',c:'EECP',segs:[]},
       {n:'蔡宗宏',m:'00000556',c:'ILIB',segs:[{t:'16:05',x:'對全方位抗衰體檢有興趣，下週帶報告來討論。'}]}],
   1:[{n:'陳建宏',m:'00003310',c:'INDIBA',segs:[]},{n:'黃美玲',m:'00004021',c:'EECP',segs:[]}],
-  2:[]
+  2:[{n:'林淑惠',m:'00004533',c:'ILIB',segs:[]},{n:'張國華',m:'00002876',c:'靜脈營養點滴',segs:[{t:'15:20',x:'詢問下次點滴可否改到週末。'}]}],
+  3:[{n:'劉怡君',m:'00005120',c:'INDIBA',segs:[]},{n:'周文彬',m:'00001198',c:'EECP',segs:[]},{n:'許雅婷',m:'00006047',c:'高能量雷射',segs:[]}],
+  4:[{n:'陳美玲',m:'00003902',c:'EECP、靜脈營養點滴',segs:[]},{n:'黃志強',m:'00000745',c:'ILIB',segs:[]}],
 };
 let me='林雅婷', inLine=false, form='';
 let late=false, doneBefore=false, prevRep=null, rep={};
@@ -253,7 +258,7 @@ function renderRep(){
   const head=prevRep?`<div class="banner info">今天已於 ${prevRep.at} 回報（來源：${prevRep.src}）。再次送出會覆蓋。</div>`:'';
   const rows=CATS.map(([k,l])=>`<div class="row"><label for="i-${k}">${l}</label><div class="in"><span class="u">NT$</span><input id="i-${k}" inputmode="numeric" placeholder="0" value="${Number.isFinite(rep[k])?fmt(rep[k]):''}" oninput="fmtInput(this);setRep('${k}',this.value)"></div></div>`).join('');
   const h=recvHint();
-  $('main').innerHTML=`${hello()}<div class="topline"><b>${ic('hongbao','lg')}11/3（二）業績回報</b><span>${ic('clock')}21:00 截止</span></div>${head}
+  $('main').innerHTML=`${hello()}<div class="topline"><b>${ic('hongbao','lg')}${DAYS[0].d}業績回報</b><span>${ic('clock')}21:00 截止</span></div>${head}
   <div class="sec"><h3><span>${ic('coins')}業績金額</span><span>沒有的類別不用填</span></h3>${rows}</div>
   <div class="sec"><h3><span>${ic('users')}客戶數</span></h3>
     <div class="row"><label for="i-contact">聯絡客戶 <span class="req">*</span></label><div class="in"><input id="i-contact" inputmode="numeric" placeholder="必填" value="${rep.contact??''}" oninput="setRep('contact',this.value)"><span class="u">位</span></div></div>
@@ -289,14 +294,14 @@ function doSubmitRep(){
   prevRep={vals:{...rep},at:new Date().toTimeString().slice(0,5),src:'LINE'};
   const lines=CATS.filter(([k])=>rep[k]).map(([k,l])=>`<div class="r ind"><span>${l}</span><span>${fmt(rep[k])}</span></div>`).join('');
   const note=rep.recv!==RECV_SYS?` <span style="font-size:12px;color:var(--sub)">（系統 ${RECV_SYS} 位）</span>`:'';
-  $('main').innerHTML=`<div class="done">${ic('ingot','xl')}<h2>業績回報已送出</h2><p>11/3（二）${prevRep.at}</p>
+  $('main').innerHTML=`<div class="done">${ic('ingot','xl')}<h2>業績回報已送出</h2><p>${DAYS[0].d}${prevRep.at}</p>
    <div class="sum" style="white-space:normal"><div class="r"><span>今日業績</span><b>NT$ ${fmt(repTotal())}</b></div>${lines}<hr>
    <div class="r"><span>聯絡客戶</span><span>${rep.contact} 位</span></div><div class="r"><span>接待客戶</span><span>${rep.recv} 位${note}</span></div></div>
    <p style="font-size:13px">21:00 前可再次開啟「業績回報」修改。</p><div class="hint" id="chat-note"></div></div>`;
   $('foot').innerHTML=`<div><button class="btn pri" onclick="closeForm()">關閉</button></div>`;
   scrollTo(0,0);
   // 每行「項目 數值」，第一行以【回報】開頭；官方帳號的 webhook 收到後回覆回報卡
-  const msg=['【回報】11/3（二）業績回報',`今日業績 NT$${fmt(repTotal())}`,
+  const msg=[`【回報】${DAYS[0].d}業績回報`,`今日業績 NT$${fmt(repTotal())}`,
     ...CATS.filter(([k])=>rep[k]).map(([k,l])=>`${l} ${fmt(rep[k])}`),
     `聯絡客戶 ${rep.contact} 位`,
     `接待客戶 ${rep.recv} 位`+(rep.recv!==RECV_SYS?`（系統 ${RECV_SYS} 位）`:'')];
@@ -382,8 +387,8 @@ function confirmFb(){
 }
 function doSubmitFb(){
   hideMask();
-  if(late&&fb.day===2){fb.step='list';renderFb();
-    $('main').insertAdjacentHTML('afterbegin','<div class="banner alert">前天的回報已超過期限，無法送出。</div>');return;}
+  if(late&&fb.day===DAYS.length-1){fb.step='list';renderFb();
+    $('main').insertAdjacentHTML('afterbegin',`<div class="banner alert">${DAYS[fb.day].l}的回報已超過期限，無法送出。</div>`);return;}
   fb.cust.segs.push({t:new Date().toTimeString().slice(0,5),x:fb.text});
   const c=fb.cust,d=DAYS[fb.day];
   // 省步驟：送出後直接回到客戶清單，頂部提示已送出
